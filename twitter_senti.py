@@ -73,17 +73,6 @@ def tweet_preprocessing(twitter_path,melbGrid_path,afinn_path,comm):
 
     return result
 
-# def master_proc(comm):
-#     result = tweet_preprocessing('./data/smallTwitter.json','./data/melbGrid.json','./data/AFINN.txt',comm)
-#     print('master {}: \t'.format(comm.Get_rank()), '\t', result)
-#     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`')
-
-# def slave_proc(comm):
-#     result = tweet_preprocessing('./data/tinyTwitter.json','./data/melbGrid.json','./data/AFINN.txt',comm)
-#     slave_result = comm.gather(result, root=0)
-#     print('slave {}: \t'.format(comm.Get_rank()), '\t', slave_result)
-#     print('#####################################################`')
-
 def tweets_processor(comm):
     rank = comm.Get_rank()
     result = tweet_preprocessing('./data/smallTwitter.json','./data/melbGrid.json','./data/AFINN.txt',comm).sort_values('#Overall Sentiment Score',ascending=True)
@@ -92,8 +81,6 @@ def tweets_processor(comm):
     if rank==0:
         scattered_result_pd = pd.concat([pd.read_json(row_result) for row_result in slave_result])
         final_result = scattered_result_pd.groupby(scattered_result_pd.index).sum()
-        #print('proc {} total tweets: \n'.format(comm.Get_rank()), '\t', final_result)
-
         print('final: \n {}'.format(final_result))
 
 def main():
