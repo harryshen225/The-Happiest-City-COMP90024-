@@ -73,9 +73,9 @@ def tweet_preprocessing(twitter_path,melbGrid_path,afinn_path,comm):
 
     return result
 
-def tweets_processor(comm):
+def tweets_processor(twitter_path,melbGrid_path,afinn_path,comm):
     rank = comm.Get_rank()
-    result = tweet_preprocessing('./data/smallTwitter.json','./data/melbGrid.json','./data/AFINN.txt',comm).sort_values('#Overall Sentiment Score',ascending=True)
+    result = tweet_preprocessing(twitter_path,melbGrid_path,afinn_path,comm).sort_values('#Overall Sentiment Score',ascending=True)
     slave_result = comm.gather(result.to_json(), root=0)
     final_result = None
     if rank==0:
@@ -85,7 +85,7 @@ def tweets_processor(comm):
 
 def main():
     comm = MPI.COMM_WORLD
-    tweets_processor(comm)
+    tweets_processor('./data/smallTwitter.json','./data/melbGrid.json','./data/AFINN.txt',comm)
     MPI.Finalize
 
 if __name__ == "__main__":
